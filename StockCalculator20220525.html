@@ -1,0 +1,603 @@
+﻿<!--This is a HTML5 web page-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <!-- Global -->
+    <title>股票計算機 試算結果僅供參考 2022年5月25日 (CC BY-SA 4.0)</title>
+    <base href="https://gist.github.com/johnhmj/753d096acb2bfea8524d7d28a76376c1">
+    <meta charset="UTF-8">
+    <meta name="description" content="This is a calculator for stock (CC BY-SA 4.0)">
+    <meta name="author" content="DumbSheep">
+    <meta name="keywords" content="stock calculator, May 25, 2022">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="">
+    <!-- Chrome, Firefox OS and Opera on Mobile device -->
+    <meta name="theme-color" content="#CAC0A4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- CSS -->
+    <style type="text/css">
+        * {
+            text-size-adjust: none;
+            -webkit-text-size-adjust: none;
+            -ms-text-size-adjust: none;
+            -moz-text-size-adjust: none;
+        }
+
+        @media all {
+            /* sets the base font size for all user agents that support media queries */
+            html {
+                font-size: 16px;
+            }
+        }
+
+        input, button {
+            /*font-size: 16px;*/
+            font-size: 1em;
+        }
+        /*WATERMARK*/
+        #watermark {
+            position: absolute;
+            transform: rotate3d(0, 0, 1, -2deg);
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        #sttaxRate, #serviceRate, #percentOff, #pcntRise, #blncPcntRise, #selService, #sipRate {
+            width: 6em;
+            text-align: right;
+            font-size: 1em;
+        }
+
+        #selService {
+            width: 10em;
+            text-align: left;
+            font-size: 1em;
+        }
+
+        #serviceFeeFloor, #serviceFeeUnitFloor {
+            width: 8em;
+            text-align: right;
+            font-size: 1em;
+        }
+
+        #priceBuy, #unitNumBuy, #unitNumBuy1K, #unitNumSell1K, #priceStockBuy, #serviceFeeBuy, #settlementBuy, #priceSell, #unitNumSell, #priceStockSell, #serviceFeeSell, #STTax, #settlementSell, #profits, #blncProfits, #blncPriceSell, #blncPriceStockSell, #blncServiceFeeSell, #blncSTTax, #blncSettlementSell, #blncUnitNum, #priceSIP, #priceDividend, #priceDividendMax, #priceDividendMin {
+            width: 10em;
+            text-align: right;
+            font-size: 1em;
+        }
+    </style>
+
+    <!-- Javascript -->
+    <script type="text/javascript">
+        //
+        // Javascript ES6 class
+        class CStock {
+            //
+            // default constructor of class
+            constructor() {
+                this._price = 0.0;    // 股價
+                this._unitNum = 0.0;  // 股票數量
+                this._serviceRate = 0.0; // 手續費率
+                this._percentOff = 0.0;  // 手續費折扣
+                this._sttaxRate = 0.0;   // 證券交易稅率
+                this._serviceFeeFloor = 0.0; // 單筆最低手續費
+                this._serviceFeeUnitFloor = 0.0; // 單筆零股最低手續費
+                this._serviceFee = 0.0; // 手續費
+            }
+            //
+            // Copy method, copy members
+            clone(cClass) {
+                this._price = cClass._price;    // 股價
+                this._unitNum = cClass._unitNum;  // 股票數量
+                this._serviceRate = cClass._serviceRate; // 手續費率
+                this._percentOff = cClass._percentOff;  // 手續費折扣
+                this._sttaxRate = cClass._sttaxRate;   // 證券交易稅率
+                this._serviceFeeFloor = cClass._serviceFeeFloor; // 單筆最低手續費
+                this._serviceFeeUnitFloor = cClass._serviceFeeUnitFloor; // 單筆零股最低手續費
+                this._serviceFee = cClass._serviceFee; // 手續費
+            }
+            //
+            // set & get methods
+            // from actual value
+            setPrice(p) { this._price = p < 0 ? 0 : p; }
+            // from input field
+            setPriceId(id) { let p = funcGetElementById(id).value; p = (p == "" ? 0.0 : p); this._price = p < 0.0 ? 0.0 : p; }
+            getPrice() { return this._price * 1.0; }
+            //
+            // from actual value
+            setUnitNum(p) { this._unitNum = p < 0 ? 0 : Math.trunc(p); }
+            // from input field
+            setUnitNumId(id) { let p = funcGetElementById(id).value; p = (p == "" ? 0.0 : p); this._unitNum = p < 0.0 ? 0.0 : Math.trunc(p); }
+            getUnitNum() { return this._unitNum * 1.0; }
+            //
+            // from actual value
+            setServiceRate(p) { this._serviceRate = p; }
+            // from input field
+            setServiceRateId(id) { let p = funcGetElementById(id).value; this._serviceRate = p / 1000.0; }
+            getServiceRate() { return this._serviceRate * 1.0; }
+            //
+            // from actual value
+            setPercentOff(p) { this._percentOff = p; }
+            // from input field
+            setPercentOffId(id) { let p = funcGetElementById(id).value; this._percentOff = p / 100.0; }
+            getPercentOff() { return this._percentOff * 1.0; }
+            //
+            // from actual value
+            setSttaxRate(p) { this._sttaxRate = p; }
+            // from input field
+            setSttaxRateId(id) { let p = funcGetElementById(id).value; this._sttaxRate = p / 1000.0; }
+            getSttaxRate() { return this._sttaxRate * 1.0; }
+            //
+            // from actual value
+            setServiceFeeFloor(p) { this._serviceFeeFloor = p; }
+            // from input field
+            setServiceFeeFloorId(id) { let p = funcGetElementById(id).value; this._serviceFeeFloor = p < 0 ? 0 : p; }
+            getServiceFeeFloor() { return this._serviceFeeFloor * 1.0; }
+            //
+            // from actual value
+            setServiceFeeUnitFloor(p) { this._serviceFeeUnitFloor = p; }
+            // from input field
+            setServiceFeeUnitFloorId(id) { let p = funcGetElementById(id).value; this._serviceFeeUnitFloor = p < 0 ? 0 : p; }
+            getServiceFeeUnitFloor() { return this._serviceFeeUnitFloor * 1.0; }
+            //
+            getPriceStocks() { return this._price * this._unitNum * 1.0; }
+            //
+            getServiceFee() {
+                this._serviceFee = this._price * this._unitNum * this._serviceRate * this._percentOff;
+                if (this._unitNum < 1000.0) {
+                    this._serviceFee = (this._serviceFee < this._serviceFeeUnitFloor ? this._serviceFeeUnitFloor : this._serviceFee);
+                } else {
+                    this._serviceFee = (this._serviceFee < this._serviceFeeFloor ? this._serviceFeeFloor : this._serviceFee);
+                }
+                this._serviceFee *= 1.0;
+                return this._serviceFee;
+                //return this._price * this._unitNum * this._serviceRate * this._percentOff;
+            }
+            getSTTax() { return this._price * this._unitNum * this._sttaxRate * 1.0; }
+        }
+        //
+        // 宣告類別物件：買進、賣出
+        let stockBuy = new CStock();
+        let stockSell = new CStock();
+        let stockProfitSell = new CStock();
+        //
+        // 陣列：各家銀行的手續費，配合 select 標籤列出
+        // 以下數值僅供參考，以各家證券公司最新公布資料為準
+        //
+        let ArrServiceFee = [];
+        ArrServiceFee.push({ _rate: 1.425, _pcntOff: 60.0, _floor: 20.0, _unitFloor: 1.0 }); // 元大
+        ArrServiceFee.push({ _rate: 1.425, _pcntOff: 60.0, _floor: 20.0, _unitFloor: 2.0 }); // 第一金
+        ArrServiceFee.push({ _rate: 1.425, _pcntOff: 30.0, _floor: 20.0, _unitFloor: 1.0 }); // 台新
+        ArrServiceFee.push({ _rate: 1.425, _pcntOff: 28.0, _floor: 1.0, _unitFloor: 1.0 }); // 國泰
+        ArrServiceFee.push({ _rate: 1.425, _pcntOff: 60.0, _floor: 20.0, _unitFloor: 20.0 }); // 中國信託
+        ArrServiceFee.push({ _rate: 1.425, _pcntOff: 60.0, _floor: 12.0, _unitFloor: 1.0 }); // 玉山 月1百萬內
+        ////////////////////////////////////////
+        //
+        // 在此增加證券公司的手續費
+        //
+        ////////////////////////////////////////
+        //
+        // MAIN function
+        function funcMain() {
+            //
+            // debug: F12 key for Browser console
+            funcPrint("===== funcMain() START =====");
+            //
+            // debug: array
+            funcPrint("===== Select array =====");
+            for (let i = 0; i < ArrServiceFee.length; i++) {
+                funcPrint("ArrServiceFee[" + i + "] = " + ArrServiceFee[i]._rate + "\nArrServiceFee[" + i + "] = " + ArrServiceFee[i]._pcntOff + "\nArrServiceFee[" + i + "] = " + ArrServiceFee[i]._floor + "\nArrServiceFee[" + i + "] = " + ArrServiceFee[i]._unitFloor);
+            }
+            funcPrint("selService chose index = " + funcGetElementById("selService").selectedIndex);
+            //
+            // Not modified or manually set numbers
+            if (funcGetElementById("selService").selectedIndex < ArrServiceFee.length) {
+                funcPrint("===== Select: choose an item =====\nselService index = " + funcGetElementById("selService").selectedIndex);
+                funcGetElementById("serviceRate").value = ArrServiceFee[funcGetElementById("selService").selectedIndex]._rate;
+                funcGetElementById("serviceFeeFloor").value = ArrServiceFee[funcGetElementById("selService").selectedIndex]._floor;
+                funcGetElementById("serviceFeeUnitFloor").value = ArrServiceFee[funcGetElementById("selService").selectedIndex]._unitFloor;
+                funcGetElementById("percentOff").value = ArrServiceFee[funcGetElementById("selService").selectedIndex]._pcntOff;
+            } else {
+                funcPrint("===== Manually set numbers =====");
+            }
+            //
+            // 單選框、證交稅率
+            funcPrint("===== STTax radio checked =====");
+            if (funcGetElementById("rdStocks").checked) {
+                funcGetElementById("sttaxRate").value = funcGetElementById("rdStocks").value;
+                funcGetElementById("sttaxRate").readOnly = true;
+            }
+            if (funcGetElementById("rdCorporateBonds").checked) {
+                funcGetElementById("sttaxRate").value = funcGetElementById("rdCorporateBonds").value;
+                funcGetElementById("sttaxRate").readOnly = true;
+            }
+            if (funcGetElementById("rdUndefined").checked) {
+                funcGetElementById("sttaxRate").readOnly = false;
+                //console.log("Tax rate rdUndefined = " + funcGetElementById("rdUndefined").checked);
+                //funcGetElementById("sttaxRate").value = funcGetElementById("rdUndefined").value;
+            }
+            //
+            // 買進 設值
+            funcPrint("===== Buy stock set values =====");
+            stockBuy.setPriceId("priceBuy");
+            stockBuy.setUnitNumId("unitNumBuy");
+            if (funcGetElementById("unitNumBuy").value != "") {
+                funcGetElementById("unitNumBuy").value = stockBuy.getUnitNum();
+            }
+            stockBuy.setServiceRateId("serviceRate");
+            stockBuy.setPercentOffId("percentOff");
+            stockBuy.setServiceFeeFloorId("serviceFeeFloor");
+            stockBuy.setServiceFeeUnitFloorId("serviceFeeUnitFloor");
+            //
+            // 賣出 設值
+            funcPrint("===== Sell stock set values =====");
+            stockSell.setPriceId("priceSell");
+            if (funcGetElementById("cbUnitNum").checked) {
+                stockSell.setUnitNumId("unitNumBuy");
+                funcGetElementById("unitNumSell").value = funcGetElementById("unitNumBuy").value;
+            } else {
+                if (funcGetElementById("unitNumSell").value != "") {
+                    stockSell.setUnitNumId("unitNumSell");
+                    funcGetElementById("unitNumSell").value = stockSell.getUnitNum();
+                }
+            }
+            stockSell.setServiceRateId("serviceRate");
+            stockSell.setPercentOffId("percentOff");
+            stockSell.setSttaxRateId("sttaxRate");
+            stockSell.setServiceFeeFloorId("serviceFeeFloor");
+            stockSell.setServiceFeeUnitFloorId("serviceFeeUnitFloor");
+            //
+            // 買進 試算
+            funcPrint("===== Buy stock output =====");
+            funcGetElementById("unitNumBuy1K").value = funcUnitNumTo1K(stockBuy.getUnitNum());
+            funcGetElementById("priceStockBuy").value = stockBuy.getPriceStocks().toFixed(2);
+            funcGetElementById("serviceFeeBuy").value = stockBuy.getServiceFee().toFixed(2);
+            funcGetElementById("settlementBuy").value = ((stockBuy.getPriceStocks() + stockBuy.getServiceFee()) < 0 ? 0 : stockBuy.getPriceStocks() + stockBuy.getServiceFee()).toFixed(2);
+            //
+            // 賣出 試算
+            funcPrint("===== Sell stock output =====");
+            funcGetElementById("unitNumSell1K").value = funcUnitNumTo1K(stockSell.getUnitNum());
+            funcGetElementById("priceStockSell").value = stockSell.getPriceStocks().toFixed(2);
+            funcGetElementById("serviceFeeSell").value = stockSell.getServiceFee().toFixed(2);
+            funcGetElementById("STTax").value = stockSell.getSTTax().toFixed(2);
+            funcGetElementById("settlementSell").value = ((stockSell.getPriceStocks() - stockSell.getServiceFee() - stockSell.getSTTax()) < 0 ? 0 : (stockSell.getPriceStocks() - stockSell.getServiceFee() - stockSell.getSTTax())).toFixed(2);
+            //
+            // 損益
+            funcPrint("===== Profit sell =====");
+            funcGetElementById("profits").value = (stockSell.getPriceStocks() - stockSell.getServiceFee() - stockSell.getSTTax() - stockBuy.getPriceStocks() - stockBuy.getServiceFee()).toFixed(2);
+            let _nPcntRise = funcPcntRise(stockSell.getPriceStocks(), stockBuy.getPriceStocks());
+            funcGetElementById("pcntRise").value = _nPcntRise.toFixed(2);
+            let _sWarningOver10Percnt = "<font style='color:white; background-color:black;'>&nbsp;注意：</font><font style='color:white; background-color:";
+            switch (funcOver10Percnt(_nPcntRise)) {
+                case 1:
+                    _sWarningOver10Percnt += "darkred;'>&nbsp;漲";
+                    break;
+                case -1:
+                    _sWarningOver10Percnt += "darkgreen;'>&nbsp;跌";
+                    break;
+                default:
+                    _sWarningOver10Percnt += "black;'>&nbsp;未";
+                    break;
+            }
+            funcGetElementById("over10percnt").innerHTML = _sWarningOver10Percnt + "超過 10&percnt;&nbsp;</font>";
+            //
+            // 損益平衡
+            // 賣價 x張數 x(1000 -3 -1.425) = 損益 + 買價 x張數 x(1000 +1.425)
+            funcPrint("===== Profit balance =====");
+            stockProfitSell.clone(stockBuy);
+            stockProfitSell.setSttaxRate(stockSell.getSttaxRate());
+            let profitSellPrice = (funcGetElementById("blncProfits").value * 1.0 + stockProfitSell.getPriceStocks() + stockProfitSell.getServiceFee()) / (stockProfitSell.getUnitNum() * (1.0 - stockProfitSell.getSttaxRate() - stockProfitSell.getServiceRate() * stockProfitSell.getPercentOff()));
+            //
+            // debug console
+            funcPrint(stockProfitSell.getPriceStocks() + "\n" + stockProfitSell.getServiceFee() + "\n" + stockProfitSell.getUnitNum() + "\n" + stockProfitSell.getSttaxRate() + "\n" + stockProfitSell.getServiceRate() + "\n" + stockProfitSell.getPercentOff());
+            stockProfitSell.setPrice(profitSellPrice);
+            //
+            funcGetElementById("blncPriceSell").value = stockProfitSell.getPrice().toFixed(2);
+            funcGetElementById("blncUnitNum").value = stockProfitSell.getUnitNum();
+            funcGetElementById("blncPriceStockSell").value = stockProfitSell.getPriceStocks().toFixed(2);
+            funcGetElementById("blncServiceFeeSell").value = stockProfitSell.getServiceFee().toFixed(2);
+            stockProfitSell.setSttaxRateId("sttaxRate");
+            funcGetElementById("blncSTTax").value = stockProfitSell.getSTTax().toFixed(2);
+            funcGetElementById("blncSettlementSell").value = (stockProfitSell.getPriceStocks() - stockProfitSell.getServiceFee() - stockProfitSell.getSTTax()).toFixed(2);
+            let _vblncPcntRise = funcPcntRise(stockProfitSell.getPrice(), stockBuy.getPrice());
+            //let _vblncPcntRise = ((stockProfitSell.getPrice() - stockBuy.getPrice()) * 100.0 / stockBuy.getPrice()).toFixed(2);
+            funcGetElementById("blncPcntRise").value = _vblncPcntRise.toFixed(2);
+            //
+            funcPrint("===== space format =====");
+            funcSpace("space000", "&nbsp;", 0);
+            funcSpace("space001", "&nbsp;", 0);
+            funcSpace("space002", "&nbsp;", 0);
+            funcSpace("space003", "&nbsp;", 0);
+            funcPrint("===== funcMain() END =====");
+        }
+        //
+        // console.log: cout, printf, F12 in browser
+        function funcPrint(_print) {
+            console.log(_print);
+        }
+        //
+        // document.getElementById
+        function funcGetElementById(_byId) {
+            return document.getElementById(_byId);
+        }
+        //
+        // clear input field
+        function funcClear(id) {
+            funcGetElementById(id).value = "";
+        }
+        //
+        // undefined value
+        function funcIsUndefined(_value) {
+            //funcPrint("Undefined = " + (isNaN(_value) || !isFinite(_value)));
+            return (isNaN(_value) || !isFinite(_value));
+        }
+        //
+        // decrease & increase values
+        function funcAddUnitNum(id, number, flag) {
+            let a = funcGetElementById(id).value * 1.0;
+            switch (flag) {
+                case -1:
+                    //
+                    // decrease value
+                    a -= number;
+                    a = a < 0 ? 0.0 : a;
+                    break;
+                case 0:
+                    //
+                    // set zero value
+                    a = number;
+                    break;
+                case 1:
+                    //
+                    // increase value
+                    a += number;
+                    break;
+                default:
+                    //
+                    // other exceptions
+                    break;
+            }
+            funcGetElementById(id).value = a;
+        }
+        //
+        // Unit numbers to One thousand
+        function funcUnitNumTo1K(_unitNum) {
+            return Math.trunc(Math.trunc(_unitNum) / 1000.0);
+        }
+        //
+        // Sell rise percent
+        function funcPcntRise(_sell, _buy) {
+            let _diff = (_sell - _buy) * 1.0;
+            _diff = _diff * 100.0 / _buy;
+            _diff = (funcIsUndefined(_diff) ? 0.0 : _diff);
+            return _diff;
+        }
+        function funcOver10Percnt(_percnt) {
+            let _limit = 10.0;
+            let _nFlag = 0.0;
+            switch (Math.sign(_percnt)) {
+                case 1:
+                    _nFlag = (_percnt > _limit) ? 1.0 : 0.0;
+                    break;
+                case -1:
+                    _nFlag = (Math.abs(_percnt) > _limit) ? -1.0 : 0.0;
+                    break;
+                default:
+                    break;
+            }
+            return _nFlag;
+        }
+        //
+        // Watermark
+        function funcMainWatermark() {
+            funcPrint("===== Watermark Main START =====");
+            let flagWM = funcGetElementById("cbWatermark").checked;
+            funcPrint(flagWM);
+            funcWatermark(flagWM, 28, "試算結果&nbsp;僅供參考");
+            funcPrint("===== Watermark Main END =====");
+        }
+        function funcWatermark(_flag, _numbers, _descriptions) {
+            let strText = String();
+            let _num = Math.round(_numbers);
+            if (_flag) {
+                for (let i = 0; i < _num; i++) {
+                    for (let j = 0; j < 1; j++) {
+                        strText += _descriptions;
+                    }
+                    strText += "<br><br>"
+                }
+            }
+            funcGetElementById("watermark").innerHTML = strText;
+        }
+        //
+        // space, funcSpace(_id, "&nbsp;", 10)
+        function funcSpace(_id, _sign, _number) {
+            let _strSpace = "";
+            for (let i = 0; i < _number; i++) {
+                _strSpace += _sign;
+            }
+            funcGetElementById(_id).innerHTML = _strSpace;
+        }
+        //
+        // 二代健保補充保費
+        // dividend, supplementary insurance premium of the 2nd Generation NHI program
+        function funcMainSIP2ndNHI() {
+            funcPrint("===== MainSIP2ndNHI() START =====");
+            funcPrint("===== SIP radio checked =====");
+            if (funcGetElementById("rdSIPRate2p11").checked) {
+                funcGetElementById("sipRate").value = funcGetElementById("rdSIPRate2p11").value;
+                funcGetElementById("sipRate").readOnly = true;
+            }
+            if (funcGetElementById("rdSIPRate1p91").checked) {
+                funcGetElementById("sipRate").value = funcGetElementById("rdSIPRate1p91").value;
+                funcGetElementById("sipRate").readOnly = true;
+            }
+            if (funcGetElementById("rdSIPUndefined").checked) {
+                funcGetElementById("sipRate").readOnly = false;
+            }
+            let _sRate = funcGetElementById("sipRate").value;
+            let _pSIPMax = Math.trunc(funcGetElementById("priceDividendMax").value); // 收費上限
+            funcGetElementById("priceDividendMax").value = _pSIPMax;
+            let _pSIPMin = Math.trunc(funcGetElementById("priceDividendMin").value); // 收費下限
+            funcGetElementById("priceDividendMin").value = _pSIPMin;
+            let _dvdd = Math.trunc(funcGetElementById("priceDividend").value);
+            //funcGetElementById("priceDividend").value = _dvdd;
+            _dvdd = (_dvdd == "" ? 0.0 : _dvdd);
+            funcGetElementById("priceSIP").value = funcSIP2ndNHI(_dvdd, _sRate, _pSIPMax, _pSIPMin);
+            funcPrint(funcGetElementById("priceSIP").value);
+            funcPrint("===== MainSIP2ndNHI() END =====");
+        }
+        function funcSIP2ndNHI(_dividend, _sipRate, _sipMax, _sipMin) {
+            let _sip = 0.0;
+            _dividend *= 1.0, _sipRate *= 1.0, _sipMax *= 1.0, _sipMin *= 1.0;
+            funcPrint(_dividend);
+            funcPrint(_sipMax);
+            if (_dividend >= _sipMin) {
+                _sip = (_dividend > _sipMax ? _sipMax : _dividend) * _sipRate / 100.0;
+            }
+            return Math.round(_sip);
+        }
+    </script>
+</head>
+<body onload="funcMain(), funcMainSIP2ndNHI(), funcMainWatermark()">
+    <table border="1" style="width:22em; padding: 0px 0px 0px 0px; border-color:lightgray;" align="center">
+        <tr style="border-color:orange;">
+            <td align="center" style="border-width:1px;">
+                <font style="font-size:1.875em;"><span id="watermark"></span></font><font style="font-size:1.875em; font-weight:bold;">《股票計算機 2022年》</font>
+            </td>
+        </tr>
+        <tr style="border-color:red;">
+            <td>
+                <font style="color:black; background-color:white;">
+                    <form oninput="funcMain(), funcMainWatermark()">
+                        <font style="font-size:1.25em; color:white; background-color:black;">&nbsp;注意：試算結果僅供參考&nbsp;</font><input type="checkbox" id="cbWatermark" checked><font style="font-size:1.25em;">浮水印</font>
+                        <ul style="list-style-type:disc">
+                            <!--證交稅率-->
+                            <li>證交稅率&nbsp;(&permil;)：千分之&nbsp;<input type="number" id="sttaxRate" value="3.0" step="0.001" min="0" max="1000.0"><br><input type="radio" name="rdTaxRate" id="rdStocks" value="3.0" checked>股票&nbsp;(3&permil;)&nbsp;<input type="radio" name="rdTaxRate" id="rdCorporateBonds" value="1.0">公司債&nbsp;(1&permil;)<br><input type="radio" name="rdTaxRate" id="rdUndefined">修改稅率<br><br></li>
+                            <!--手續費率-->
+                            <li>
+                                證券商列表：<select id="selService">
+                                    <optgroup label="== 電子下單優惠 ==">
+                                        <option value="0" selected>元大</option>
+                                        <option value="1">第一金</option>
+                                        <option value="2">台新</option>
+                                        <option value="2">國泰</option>
+                                        <option value="3">中國信託</option>
+                                        <option value="4">玉山 月1百萬內</option>
+                                    </optgroup>
+                                    <optgroup label="== 設定數值 =="><option value="5">手動修改手續費</option></optgroup>
+                                    <!--在此增加清單-->
+                                </select><br><br>
+                            </li>
+                            <li>手續費率&nbsp;(&permil;)：千分之&nbsp;<input type="number" id="serviceRate" value="1.425" step="0.001" max="1000.0"></li>
+                            <li>手續折扣&nbsp;(&percnt;)：百分之&nbsp;<input type="number" id="percentOff" value="100.0" step="1" min="0" max="100.0"></li>
+                            <li>&emsp;&emsp;最低手續費：<input type="number" id="serviceFeeFloor" value="20" step="1" min="0">&nbsp;元</li>
+                            <li>零股最低手續費：<input type="number" id="serviceFeeUnitFloor" value="1" step="1" min="0">&nbsp;元</li>
+                        </ul><hr style="height:1px; border-width:2px; border-color:lightgray; background-color:red;">
+                        <!--買進股票-->
+                        <font style="color:white; background-color:darkred;">【買入】</font>&nbsp;(輸入股價與數量)<br>
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkred; background-color:white;">成本股價</font>：<input type="number" id="priceBuy" value="29.85" step="0.01" min="0">&nbsp;元</li>
+                        </ul>
+                        <div style="text-align:right;"><span id="space000"></span><button type="button" id="btnClearPriceBuy" onclick="funcClear('priceBuy'), funcMain()">清除欄位<br>修改股價</button></div><!--<input type="button" id="btnClearPriceBuy" onclick="funcClear('priceBuy'), funcMain()" value="清除股價">-->
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkred; background-color:white;">股票數量</font>：<input type="number" id="unitNumBuy" value="1000" step="1" min="0">&nbsp;股</li>
+                        </ul>
+                        <div style="text-align:right;">
+                            <!--<input type="button" onclick="funcAddUnitNum('unitNumBuy', 0, 0), funcMain()" value="數量歸零">&emsp;-->
+                            <input type="button" onclick="funcAddUnitNum('unitNumBuy', 1000, -1), funcMain()" value="減 1張">&emsp;
+                            <input type="button" onclick="funcAddUnitNum('unitNumBuy', 1000, 1), funcMain()" value="加 1張">&emsp;
+                            <button type="button" onclick="funcClear('unitNumBuy'), funcMain()">清除欄位<br>修改數量</button>
+                        </div>
+                        <ol type="a">
+                            <li>股票張數：<input type="text" id="unitNumBuy1K" readonly>&nbsp;張</li>
+                            <li>成交價金：<input type="text" id="priceStockBuy" readonly>&nbsp;元</li>
+                            <li>&emsp;手續費：<input type="text" id="serviceFeeBuy" readonly>&nbsp;元</li>
+                            <li>&emsp;&emsp;成本：<input type="text" id="settlementBuy" readonly>&nbsp;元</li>
+                        </ol>
+                        <!--賣出股票-->
+                        <font style="color:white; background-color:darkgreen;">【賣出】</font>&nbsp;(輸入股價與數量)
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkgreen; background-color:white;">賣出股價</font>：<input type="number" id="priceSell" value="31.45" step="0.01" min="0">&nbsp;元</li>
+                        </ul>
+                        <div style="text-align:right;"><span id="space001"></span><button type="button" id="btnClearPriceSell" onclick="funcClear('priceSell'), funcMain()">清除欄位<br>修改股價</button></div>
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkgreen; background-color:white;">股票數量</font>：<input type="number" id="unitNumSell" value="1000" step="1" min="0">&nbsp;股<br><input type="checkbox" id="cbUnitNum" checked>同&nbsp;買入數量</li>
+                        </ul>
+                        <div style="text-align:right;">
+                            <!--<input type="button" onclick="funcAddUnitNum('unitNumSell', 0, 0), funcMain()" value="數量歸零">&emsp;-->
+                            <input type="button" onclick="funcAddUnitNum('unitNumSell', 1000, -1), funcMain()" value="減 1張">&emsp;
+                            <input type="button" onclick="funcAddUnitNum('unitNumSell', 1000, 1), funcMain()" value="加 1張">&emsp;
+                            <button type="button" onclick="funcClear('unitNumSell'), funcMain()">清除欄位<br>修改數量</button>
+                        </div>
+                        <ol type="a">
+                            <li>股票張數：<input type="text" id="unitNumSell1K" readonly>&nbsp;張</li>
+                            <li>成交價金：<input type="text" id="priceStockSell" readonly>&nbsp;元</li>
+                            <li>&emsp;手續費：<input type="text" id="serviceFeeSell" readonly>&nbsp;元</li>
+                            <li>&emsp;證交稅：<input type="text" id="STTax" readonly>&nbsp;元</li>
+                            <li>賣出交割：<input type="text" id="settlementSell" readonly>&nbsp;元</li>
+                            <li>&emsp;&emsp;損益：<input type="text" id="profits" readonly>&nbsp;元</li>
+                            <li>漲跌幅&nbsp;(&percnt;)：百分之&nbsp;<input type="text" id="pcntRise" size="6" readonly><br><span id="over10percnt"></span></li>
+                        </ol>
+                        <!--損益平衡-->
+                        <font style="color:white; background-color:darkgoldenrod;">【損益平衡】</font>
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkgoldenrod; background-color:white;">最低損益</font>：<input type="number" id="blncProfits" value="0.00" step="0.01" min="0">&nbsp;元</li>
+                        </ul>
+                        <div style="text-align:right;"><span id="space002"></span><button type="button" id="btnClearSetProfits" onclick="funcClear('blncProfits'), funcMain()">清除欄位<br>修改損益</button></div>
+                        <ol type="A">
+                            <li>賣出股價：<input type="text" id="blncPriceSell" readonly>&nbsp;元</li>
+                            <li>股票數量：<input type="text" id="blncUnitNum" readonly>&nbsp;股</li>
+                            <li>賣出成交：<input type="text" id="blncPriceStockSell" readonly>&nbsp;元</li>
+                            <li>&emsp;手續費：<input type="text" id="blncServiceFeeSell" readonly>&nbsp;元</li>
+                            <li>&emsp;證交稅：<input type="text" id="blncSTTax" readonly>&nbsp;元</li>
+                            <li>賣出交割：<input type="text" id="blncSettlementSell" readonly>&nbsp;元</li>
+                            <li>漲跌幅&nbsp;(&percnt;)：百分之&nbsp;<input type="text" id="blncPcntRise" readonly></li>
+                        </ol>
+                    </form>
+                </font>
+            </td>
+        </tr>
+        <tr style="border-color:green;">
+            <td align="left" style="border-width:1px;">
+                <font style="color:white; background-color:darkcyan;">【二代健保補充保費】</font>
+                <form oninput="funcMainSIP2ndNHI()">
+                    <ul style="list-style-type:disc">
+                        <li>保險費率&nbsp;(&percnt;)：百分之&nbsp;<input type="number" id="sipRate" value="2.11" step="0.01" min="0" max="1000.0"><br><input type="radio" name="rdGroupSIPRate" id="rdSIPRate2p11" value="2.11" checked>2.11&percnt;&nbsp;<input type="radio" name="rdGroupSIPRate" id="rdSIPRate1p91" value="1.91">1.91&percnt;&nbsp;<input type="radio" name="rdGroupSIPRate" id="rdSIPUndefined">修改稅率<br><br></li>
+                        <li>收費最高：<input type="number" id="priceDividendMax" value="10000000" step="1" min="0">&nbsp;元</li>
+                        <li>收費最低：<input type="number" id="priceDividendMin" value="20000" step="1" min="0">&nbsp;元<br><br></li>
+                        <li>&emsp;&emsp;股利：<input type="number" id="priceDividend" value="20000" step="1" min="0">&nbsp;元</li>
+                    </ul>
+                    <div style="text-align:right;"><span id="space003"></span><button type="button" onclick="funcClear('priceDividend'), funcMainSIP2ndNHI()">清除欄位<br>修改數量</button></div>
+                    <ol type="I">
+                        <li>補充保費：<input type="text" id="priceSIP" readonly>&nbsp;元</li>
+                    </ol>
+                </form>
+                <font style="color:black; background-color:white;">
+                    <ul style="list-style-type:circle">
+                        <li>補充保費試算結果與數據皆僅供參考，應依照衛生福利部中央健康保險署的計算結果為準。</li>
+                        <li>補充保險費率自2021年1月1日起由1.91&percnt;調升為2.11&percnt;。</li>
+                        <li>股利所得應扣取補充保險費下限自2016年1月1日起由5千元提高為2萬元，當金額超過1千萬元以1千萬元計算。</li>
+                    </ul>
+                </font>
+            </td>
+        </tr>
+        <tr style="border-color:blue;">
+            <td align="left" style="border-width:1px;">
+                <font style="color:black; background-color:white;">
+                    【注意事項】：
+                    <ul style="list-style-type:circle">
+                        <li>試算結果與數據皆僅供參考，投資人應自行判斷損益及風險，各家證券商的小數值計算方法不盡相同，應依照證券商的計算結果為準。</li>
+                        <li>證券商列表，快速設定手續費，應依照證券商公布的最新費率為準。</li>
+                        <li>手續費折扣，電子下單手續費優惠，無優惠&nbsp;(100&percnt;)，六折&nbsp;(60&percnt;)。</li>
+                        <li>股票數量，1張&nbsp;(千股)，零股&nbsp;(1股&nbsp;到&nbsp;999股)。</li>
+                        <li>同買入量，設定賣出數量與買入相同。</li>
+                        <li>License: <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank">CC BY-SA 4.0</a></li>
+                    </ul>
+                </font>
+            </td>
+        </tr>
+    </table><br>
+</body>
+</html>
