@@ -1,0 +1,115 @@
+﻿<!--This is a HTML5 web page-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <!-- Global -->
+    <title>股票計算機 試算結果僅供參考 2022年5月25日 (CC BY-SA 4.0)</title>
+    <base href="https://johnhmj.github.io/calstock/">
+    <meta charset="UTF-8">
+    <meta name="description" content="This is a calculator for stock (CC BY-SA 4.0)">
+    <meta name="author" content="DumbSheep">
+    <meta name="keywords" content="stock calculator, May 25, 2022">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="">
+    <!-- Chrome, Firefox OS and Opera on Mobile device -->
+    <meta name="theme-color" content="#CAC0A4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- CSS -->
+    <style type="text/css">
+        a:link, a:visited
+        {
+            text-decoration:none;
+            color:dodgerblue;
+        }
+        a:hover
+        {
+            text-decoration:underline;
+            color:red;
+        }
+        * {
+            text-size-adjust: none;
+            -webkit-text-size-adjust: none;
+            -ms-text-size-adjust: none;
+            -moz-text-size-adjust: none;
+        }
+        @media all
+        {
+            /* sets the base font size for all user agents that support media queries */
+            html {
+                font-size: 16px;
+            }
+        }
+        /*WATERMARK*/
+        #watermark
+        {
+            position: absolute;
+            transform: rotate3d(0, 0, 1, -2deg);
+            z-index: -1;
+            opacity: 0.05;
+        }
+    </style>
+    <!-- Javascript -->
+    <script type="text/javascript">
+        //
+        // Javascript ES6 class
+        //
+        // console.log: cout, printf, F12 in browser
+        function funcPrint(_print) {
+            console.log(_print);
+        }
+        //
+        // document.getElementById
+        function funcGetElementById(_byId) {
+            return document.getElementById(_byId);
+        }
+        //
+        // clear input field
+        function funcClear(id) {
+            funcGetElementById(id).value = "";
+        }
+        //
+        // Watermark
+        function funcMainWatermark() {
+            funcPrint("===== Watermark Main START =====");
+            let flagWM = funcGetElementById("cbWatermark").checked;
+            funcPrint(flagWM);
+            funcWatermark(flagWM, 6, "試算結果&nbsp;僅供參考");
+            funcPrint("===== Watermark Main END =====");
+        }
+        function funcWatermark(_flag, _numbers, _descriptions) {
+            let strText = String();
+            let _num = Math.round(_numbers);
+            if (_flag) {
+                for (let i = 0; i < _num; i++) {
+                    for (let j = 0; j < 1; j++) {
+                        strText += _descriptions;
+                    }
+                    strText += "<br><br>"
+                }
+            }
+            funcGetElementById("watermark").innerHTML = strText;
+        }
+    </script>
+</head>
+<body onload="funcMainWatermark()">
+    <table border="0" align="center">
+        <tr>
+            <td>
+                <form oninput="funcMainWatermark()">
+                    <font style="font-size:1.875em;"><span id="watermark"></span></font>
+                    <input type="checkbox" id="cbWatermark" checked><font style="font-size:1.25em;">浮水印</font>
+                </form>
+            </td>
+        <tr>
+            <td>
+                <font style="font-size:1.875em; font-weight:bold;">
+                    <ul style="list-style-type:disc">
+                        <li><a href="StockCalculator20220525.html.html">股票計算機 2022年</a></li>
+                        <li><a href="TimeDeposit20220402.html">定期存款計算機 2022年</a></li>
+                    </ul>
+                </font>
+            </td>
+    </table>
+</body>
+</html>
