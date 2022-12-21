@@ -1,0 +1,248 @@
+﻿<!--This is a HTML5 web page-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <!-- Global -->
+    <title>定期存款計算機 試算結果僅供參考 2022年4月2日 (CC BY-SA 4.0)</title>
+    <base href="https://gist.github.com/johnhmj/9ffe5e925d33de69c99f537dff84d549">
+    <meta charset="UTF-8">
+    <meta name="description" content="This is a calculator for Time deposit (CC BY-SA 4.0)">
+    <meta name="author" content="DumbSheep">
+    <meta name="keywords" content="Time deposit calculator, April 2, 2022">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="">
+    <!-- Chrome, Firefox OS and Opera on Mobile device -->
+    <meta name="theme-color" content="#CAC0A4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- CSS -->
+    <style type="text/css">
+        input, button {
+            font-size: 14px;
+        }
+
+        #watermark {
+            position: absolute;
+            transform: rotate(-2deg);
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        #idInterestRate, #idPercentSimple {
+            width: 6em;
+            text-align: right;
+            font-size: 1em;
+        }
+
+        #idPrincipal, #idTermYear, #idTermMonth, #idTermDay, #idCompoundFinalAmount, #idCompoundInterest, #idSimpleFinalAmount, #idSimpleInterest {
+            width: 10em;
+            text-align: right;
+            font-size: 1em;
+        }
+    </style>
+
+    <!-- Javascript -->
+    <script type="text/javascript">
+        //
+        // Javascript ES6 class
+        class CTimeDeposit {
+            //
+            // default constructor of class
+            constructor() {
+                this.m_principal = 0.0; // 本金
+                this.m_term = 0.0; // 期數
+                this.m_interest_rate = 0.0; // 年利率
+                this.m_compoundfinalamount = 0.0; // 複利本利和
+                this.m_compoundinterest = 0.0; // 利息
+                this.m_simplefinalamount = 0.0; // 單利本利和
+                this.m_simpleinterest = 0.0; // 利息
+                this.m_percentsimple = 0.0; // 單利折扣
+            }
+            //
+            // Copy method, copy members
+            clone(cClass) {
+                this.m_principal = cClass.m_principal; // 本金
+                this.m_term = cClass.m_term; // 期數
+                this.m_interest_rate = cClass.m_interest_rate; // 年利率
+                this.m_compoundfinalamount = cClass.m_compoundfinalamount; // 複利本利和
+                this.m_compoundinterest = cClass.m_compoundinterest; // 複利利息
+                this.m_simplefinalamount = cClass.m_simplefinalamount; // 單利本利和
+                this.m_simpleinterest = cClass.m_simpleinterest; // 單利利息
+                this.m_percentsimple = cClass.m_percentsimple; // 單利折扣
+            }
+            //
+            // set & get methods
+            //
+            // from actual value
+            setPrincipal(p) { this.m_principal = p < 0.0 ? 0.0 : p; }
+            // from input field
+            setPrincipalId(id) { let p = funcGetElementById(id).value; this.m_principal = p < 0.0 ? 0.0 : p; }
+            // get
+            getPrincipal() { return this.m_principal * 1.0; }
+            //
+            // from actual value
+            setTerm(p) { this.m_term = p < 0.0 ? 0.0 : p; }
+            // from input field
+            setTermId(id) { let p = funcGetElementById(id).value; this.m_term = p < 0.0 ? 0.0 : p; }
+            // get
+            getTerm() { return this.m_term * 1.0; }
+            getTermMonth() { return this.m_term * 12.0; }
+            getTermDay() { return this.m_term * 365.0; }
+            //
+            // from actual value
+            setInterestRate(p) { this.m_interest_rate = p < 0.0 ? 0.0 : p; }
+            // from input field
+            setInterestRateId(id) { let p = funcGetElementById(id).value; this.m_interest_rate = p < 0.0 ? 0.0 : p / 100.0; }
+            // get
+            getInterestRate() { return this.m_interest_rate * 1.0; }
+            //
+            // from actual value
+            setInterest(p) { this.m_interest = p < 0.0 ? 0.0 : p; }
+            // from input field
+            setInterestId(id) { let p = funcGetElementById(id).value; this.m_interest = p < 0.0 ? 0.0 : p; }
+            //
+            // from actual value
+            setPercentSimple(p) { this.m_percentsimple = p < 0.0 ? 0.0 : p; }
+            // from input field
+            setPercentSimpleId(id) { let p = funcGetElementById(id).value; this.m_percentsimple = p < 0.0 ? 0.0 : p / 100.0; }
+            // get
+            getPercentSimple() { return this.m_percentsimple * 1.0; }
+            // get
+            getCompoundInterest() { this.m_compoundfinalamount = this.m_principal * Math.pow(this.m_interest_rate / 12.0 + 1.0, this.m_term * 12.0); this.m_compoundinterest = this.m_compoundfinalamount - this.m_principal; return this.m_compoundinterest }
+            getCompoundFinalAmount() { this.m_compoundfinalamount = this.m_principal * Math.pow(this.m_interest_rate / 12.0 + 1.0, this.m_term * 12.0); return this.m_compoundfinalamount; }
+            getSimpleInterest() { this.m_simplefinalamount = this.m_principal * (this.m_interest_rate * this.m_term * this.m_percentsimple + 1.0); this.m_simpleinterest = this.m_simplefinalamount - this.m_principal; return this.m_simpleinterest }
+            getSimpleFinalAmount() { this.m_simplefinalamount = this.m_principal * (this.m_interest_rate * this.m_term * this.m_percentsimple + 1.0); return this.m_simplefinalamount; }
+        }
+        let TimeDeposit = new CTimeDeposit();
+        //
+        // MAIN function
+        function funcMain() {
+            //
+            // debug: F12 key for Browser console
+            funcPrint("===== funcMain() start =====");
+            //
+            funcPrint("===== watermark =====");
+            funcPrint(funcGetElementById("cbWatermark").checked);
+            funcWatermark(funcGetElementById("cbWatermark").checked);
+            //
+            funcSpace("idSpace000", "&nbsp;", 58);
+            funcSpace("idSpace001", "&nbsp;", 58);
+            //
+            funcPrint("===== set numbers =====");
+            TimeDeposit.setPrincipalId("idPrincipal");
+            TimeDeposit.setInterestRateId("idInterestRate");
+            TimeDeposit.setTermId("idTermYear");
+            TimeDeposit.setPercentSimpleId("idPercentSimple");
+            funcPrint("===== get numbers =====");
+            funcGetElementById("idTermMonth").value = TimeDeposit.getTermMonth().toFixed(2);
+            funcGetElementById("idTermDay").value = TimeDeposit.getTermDay().toFixed(2);
+            funcGetElementById("idCompoundFinalAmount").value = TimeDeposit.getCompoundFinalAmount().toFixed(2);
+            funcGetElementById("idCompoundInterest").value = TimeDeposit.getCompoundInterest().toFixed(2);
+            funcGetElementById("idSimpleFinalAmount").value = TimeDeposit.getSimpleFinalAmount().toFixed(2);
+            funcGetElementById("idSimpleInterest").value = TimeDeposit.getSimpleInterest().toFixed(2);
+            //
+            funcPrint("===== debug numbers =====");
+            funcPrint(TimeDeposit.getPrincipal());
+            funcPrint(TimeDeposit.getInterestRate());
+            funcPrint(TimeDeposit.getTerm());
+            funcPrint(TimeDeposit.getCompoundFinalAmount());
+            funcPrint(TimeDeposit.getCompoundInterest());
+            funcPrint(TimeDeposit.getSimpleFinalAmount());
+            funcPrint(TimeDeposit.getSimpleInterest());
+            funcPrint(TimeDeposit.getPercentSimple());
+            //
+            funcPrint("===== funcMain() end =====");
+        }
+        //
+        // watermark
+        function funcWatermark(_flag) {
+            let strText = "";
+            if (_flag) {
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 1; j++) {
+                        strText += "試算結果&nbsp;僅供參考";
+                    }
+                    strText += "<br><br>"
+                }
+            }
+            funcGetElementById("watermark").innerHTML = strText;
+        }
+        //
+        // console.log: cout, printf, F12 in browser
+        function funcPrint(_print) {
+            console.log(_print);
+        }
+        //
+        // document.getElementById
+        function funcGetElementById(_byId) {
+            return document.getElementById(_byId);
+        }
+        //
+        // clear input field
+        function funcClear(id) {
+            funcGetElementById(id).value = "";
+        }
+        //
+        // space, funcSpace(_id, "&nbsp;", 10)
+        function funcSpace(_id, _sign, _number) {
+            let _strSpace = "";
+            for (let i = 0; i < _number; i++) {
+                _strSpace += _sign;
+            }
+            funcGetElementById(_id).innerHTML = _strSpace;
+        }
+    </script>
+</head>
+<body onload="funcMain()">
+    <table border="1" style="width:24em; padding: 0px 0px 0px 0px; border-color:lightgray;" align="center">
+        <tr style="border-color:orange;">
+            <td align="center" style="border-width:1px;">
+                <font style="font-size:30px;"><span id="watermark"></span></font><font style="font-size:30px; font-weight:bold;">《定期存款計算機 2022年》</font>
+            </td>
+        </tr>
+        <tr style="border-color:red;">
+            <td>
+                <font style="color:black; background-color:white;">
+                    <form oninput="funcMain()">
+                        <font style="font-size:20px; color:white; background-color:black;">&nbsp;注意：試算結果僅供參考&nbsp;</font><input type="checkbox" id="cbWatermark" checked><font style="font-size:20px;">浮水印</font><br><br>
+                        <font style="color:white; background-color:darkred;">【複利】</font>&nbsp;(輸入本金、年利率與期數)<br>
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkred; background-color:white; font-style:oblique; font-weight:bolder;">複利本利和&nbsp;=&nbsp;本金&nbsp;&times;&nbsp;(1&nbsp;+&nbsp;年利率&percnt;)<sup>年期數</sup></font><br><br></li>
+                            <li><font style="color:darkred; background-color:white;">年利率&nbsp;(&percnt;)</font>：百分之&nbsp;<input type="number" id="idInterestRate" value="1.070" step="0.001" min="0"><br><br></li>
+                            <li><font style="color:darkred; background-color:white;">&emsp;本金</font>：<input type="number" id="idPrincipal" value="400000" step="1" min="0">&nbsp;元<br><span id="idSpace000"></span><button type="button" onclick="funcClear('idPrincipal'), funcMain()">清除欄位<br>修改本金</button><br><br></li>
+                            <li><font style="color:darkred; background-color:white;">年期數</font>：<input type="number" id="idTermYear" value="1" step="0.01" min="0">&nbsp;年</li>
+                            <li><font style="color:darkred; background-color:white;">月期數</font>：<input type="number" id="idTermMonth" step="0.01" min="0" readonly>&nbsp;個月</li>
+                            <li><font style="color:darkred; background-color:white;">日期數</font>：<input type="number" id="idTermDay" step="0.01" min="0" readonly>&nbsp;天<br><span id="idSpace001"></span><button type="button" onclick="funcClear('idTermYear'), funcClear('idTermMonth'), funcClear('idTermDay'), funcMain()">清除欄位<br>修改期數</button></li>
+                        </ul>
+                        <ol type="a">
+                            <li>本利和：<input type="text" id="idCompoundFinalAmount" readonly>&nbsp;元</li>
+                            <li>&emsp;利息：<input type="text" id="idCompoundInterest" readonly>&nbsp;元</li>
+                        </ol>
+                        <font style="color:white; background-color:darkgreen;">【單利】</font><br>
+                        <ul style="list-style-type:disc">
+                            <li><font style="color:darkred; background-color:white; font-style:oblique; font-weight:bolder;">單利本利和&nbsp;=&nbsp;本金&nbsp;&times;&nbsp;(1&nbsp;+&nbsp;年利率&percnt;&nbsp;&times;&nbsp;年期數)</font><br><br></li>
+                        </ul>
+                        <ol type="a">
+                            <li>解約折扣&nbsp;(&percnt;)：百分之&nbsp;<input type="number" id="idPercentSimple" value="80" step="1" min="0"></li>
+                            <li>本利和：<input type="text" id="idSimpleFinalAmount" readonly>&nbsp;元</li>
+                            <li>&emsp;利息：<input type="text" id="idSimpleInterest" readonly>&nbsp;元</li>
+                        </ol>
+                    </form>
+                </font>
+            </td>
+        </tr>
+        <tr style="border-color:blue;">
+            <td align="left" style="border-width:1px;">
+                <font style="color:black; background-color:white;">
+                    【注意事項】：
+                    <ul style="list-style-type:circle">
+                        <li>試算結果與數據皆僅供參考，應依照金融機構的計算結果與公告為準。</li>
+                        <li>中途解約的計算結果應依照金融機構的計算結果與公告為準。</li>
+                        <li>License: <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank">CC BY-SA 4.0</a></li>
+                    </ul>
+                </font>
+            </td>
+        </tr>
+    </table><br>
+</body>
+</html>
