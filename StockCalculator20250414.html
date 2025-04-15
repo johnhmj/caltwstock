@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0065)https://johnhmj.github.io/caltwstock/StockCalculator20220525.html -->
+<!-- saved from url=(0065)https://johnhmj.github.io/caltwstock/StockCalculator20250414.html -->
 <html lang="zh-TW">
 
 <head>
@@ -211,8 +211,8 @@
     ArrServiceFee.push({ _no: 8880, _rate: 1.425, _pcntOff: 28.0, _floor: 1.0, _unitFloor: 1.0 }); // 國泰
     ArrServiceFee.push({ _no: 6160, _rate: 1.425, _pcntOff: 60.0, _floor: 20.0, _unitFloor: 20.0 }); // 中國信託
     ArrServiceFee.push({ _no: 8840, _rate: 1.425, _pcntOff: 60.0, _floor: 12.0, _unitFloor: 1.0 }); // 玉山 未達1百萬
-    ArrServiceFee.push({ _no: 8840, _rate: 1.425, _pcntOff: 50.0, _floor: 12.0, _unitFloor: 1.0 }); // 玉山 1到3百萬
-    ArrServiceFee.push({ _no: 8840, _rate: 1.425, _pcntOff: 38.0, _floor: 12.0, _unitFloor: 1.0 }); // 玉山 超過3百萬
+    // ArrServiceFee.push({ _no: 8840, _rate: 1.425, _pcntOff: 50.0, _floor: 12.0, _unitFloor: 1.0 }); // 玉山 1到3百萬
+    // ArrServiceFee.push({ _no: 8840, _rate: 1.425, _pcntOff: 38.0, _floor: 12.0, _unitFloor: 1.0 }); // 玉山 超過3百萬
     ArrServiceFee.push({ _no: 1020, _rate: 1.425, _pcntOff: 50.0, _floor: 20.0, _unitFloor: 20.0 }); // 合庫
     ArrServiceFee.push({ _no: 1030, _rate: 1.425, _pcntOff: 100.0, _floor: 20.0, _unitFloor: 20.0 }); // 土銀
     ArrServiceFee.push({ _no: 1040, _rate: 1.425, _pcntOff: 35.0, _floor: 20.0, _unitFloor: 20.0 }); // 臺銀證券
@@ -927,7 +927,7 @@
 </head>
 
 <body onload="funcMain(), funcMainSIP2ndNHI(), funcMainWatermark()">
-  <table border="1" style="width:22em; padding: 0px 0px 0px 0px; border-color:lightgray;" align="center">
+  <table border="1" style="width:24em; padding: 0px 0px 0px 0px; border-color:lightgray;" align="center">
     <tbody>
       <tr style="border-color:orange;">
         <td align="center" style="border-width:1px;">
@@ -948,7 +948,7 @@
                 <!--證交稅率-->
                 <li>證交稅率&nbsp;(‰)：千分之&nbsp;<input type="number" id="sttaxRate" value="3.0" step="0.001" min="0"
                     max="1000.0" readonly=""><br>
-                  <input type="radio" name="rdTaxRate" id="rdStocks" value="3.0" checked="">股票&nbsp;(3‰)&nbsp;<br>
+                  <input type="radio" name="rdTaxRate" id="rdStocks" value="3.0" checked="">上市櫃股票&nbsp;(3‰)&nbsp;<br>
                   <input type="radio" name="rdTaxRate" id="rdETF" value="1.0">ETF&nbsp;指數股票型基金&nbsp;(1‰)&nbsp;<br>
                   <input type="radio" name="rdTaxRate" id="rdUndefined">修改稅率&nbsp;
                   <input type="radio" name="rdTaxRate" id="rdCorporateBonds" value="1.0">公司債&nbsp;(1‰)<br>
@@ -1015,8 +1015,8 @@
                       <option value="0">8580&nbsp;聯邦商銀</option>
                       <option value="0">8710&nbsp;陽信</option>
                       <option value="6">8840&nbsp;玉山&nbsp;未達1百萬</option>
-                      <option value="7">8840&nbsp;玉山&nbsp;1到3百萬</option>
-                      <option value="8">8840&nbsp;玉山&nbsp;超過3百萬</option>
+                      <!-- <option value="7">8840&nbsp;玉山&nbsp;1到3百萬</option> -->
+                      <!-- <option value="8">8840&nbsp;玉山&nbsp;超過3百萬</option> -->
                       <option value="4">8880&nbsp;國泰</option>
                       <option value="0">8890&nbsp;大和國泰</option>
                       <option value="0">8900&nbsp;法銀巴黎</option>
